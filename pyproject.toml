@@ -16,3 +16,17 @@ source = ["app"]
 [tool.coverage.report]
 fail_under = 90
 exclude_lines = ["if TYPE_CHECKING:"]
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.mypy]
+python_version = "3.12"
+disallow_untyped_defs = true
+warn_return_any = true
+ignore_missing_imports = true

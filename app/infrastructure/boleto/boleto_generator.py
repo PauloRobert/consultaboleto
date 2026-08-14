@@ -55,9 +55,7 @@ class BoletoGeneratorService:
         self._settings = settings
 
     def gerar(self, fatura: Fatura) -> Boleto:
-        identifiers = hashlib.sha256(
-            f"{fatura.cliente.cpf.value}:{fatura.numero}".encode("utf-8")
-        ).hexdigest()[:17]
+        identifiers = hashlib.sha256(f"{fatura.cliente.cpf.value}:{fatura.numero}".encode("utf-8")).hexdigest()[:17]
         nosso_numero = str(int(identifiers, 16) % 10**17).zfill(17)
         numero_documento = fatura.numero[-12:].zfill(12)
         free_field = (
@@ -82,10 +80,14 @@ class BoletoGeneratorService:
         field_two = barcode[24:34]
         field_three = barcode[34:44]
         linha = (
-            field_one + str(modulo10(field_one))
-            + field_two + str(modulo10(field_two))
-            + field_three + str(modulo10(field_three))
-            + barcode[4] + barcode[5:19]
+            field_one
+            + str(modulo10(field_one))
+            + field_two
+            + str(modulo10(field_two))
+            + field_three
+            + str(modulo10(field_three))
+            + barcode[4]
+            + barcode[5:19]
         )
         if len(linha) != LINHA_DIGITAVEL_LENGTH:
             raise ValueError("Linha digitável com comprimento inválido.")

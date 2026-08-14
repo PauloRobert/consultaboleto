@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 
 from app.application.use_cases.consultar_cliente import ConsultarCliente
 from app.domain.entities.fatura import Fatura
@@ -18,7 +19,7 @@ class ConsultarFatura:
         return Fatura(
             cliente=cliente,
             numero=f"FAT-{cliente.cpf.value[-8:]}",
-            valor=Dinheiro("129.90"),
+            valor=Dinheiro(Decimal("129.90")),
             vencimento=date(2026, 9, 10),
             status="PENDENTE",
             data_emissao=date(2026, 8, 1),

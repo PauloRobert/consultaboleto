@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.core.logging import request_id
@@ -12,11 +12,13 @@ from app.schemas.responses import ErrorData, ErrorResponse
 
 
 def error_response(request: Request, status_code: int, code: str, message: str) -> JSONResponse:
-    body = ErrorResponse(error=ErrorData(code=code, message=message, request_id=request_id(request))).model_dump(mode="json")
+    body = ErrorResponse(error=ErrorData(code=code, message=message, request_id=request_id(request))).model_dump(
+        mode="json"
+    )
     return JSONResponse(status_code=status_code, content=body)
 
 
-def register_exception_handlers(app) -> None:
+def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(CpfInvalidoException)
     async def invalid_cpf(request: Request, _exception: CpfInvalidoException) -> JSONResponse:
         return error_response(request, 400, "INVALID_CPF", "O CPF informado é inválido.")

@@ -30,9 +30,7 @@ class ClienteTxtRepository(ClienteRepository):
 
     def _records(self) -> dict[str, Cliente]:
         with self._lock:
-            if self._cache is not None and (
-                self._ttl == 0 or monotonic() - self._loaded_at < self._ttl
-            ):
+            if self._cache is not None and (self._ttl == 0 or monotonic() - self._loaded_at < self._ttl):
                 return self._cache
             if not self._path.is_file():
                 raise FileNotFoundError("Base de clientes não encontrada.")
