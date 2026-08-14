@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from app.application.use_cases.consultar_cliente_faturas import ConsultarClienteFaturas
 from app.application.use_cases.consultar_fatura import ConsultarFatura
 from app.application.use_cases.gerar_fatura_pdf import GerarFaturaPdf
 from app.application.use_cases.listar_massas_dados import ListarMassasDados
@@ -21,6 +22,10 @@ def get_repository() -> ClienteTxtRepository:
 
 def get_consultar_fatura() -> ConsultarFatura:
     return ConsultarFatura(get_repository())
+
+
+def get_consultar_cliente_faturas() -> ConsultarClienteFaturas:
+    return ConsultarClienteFaturas(get_repository())
 
 
 def get_listar_massas_dados() -> ListarMassasDados:

@@ -7,6 +7,8 @@ from app.core.logging import request_id
 from app.domain.exceptions.domain_exceptions import (
     ClienteNaoEncontradoException,
     CpfInvalidoException,
+    FaturaNaoEncontradaException,
+    SelecaoFaturaObrigatoriaException,
 )
 from app.schemas.responses import ErrorData, ErrorResponse
 
@@ -26,6 +28,21 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ClienteNaoEncontradoException)
     async def missing_client(request: Request, _exception: ClienteNaoEncontradoException) -> JSONResponse:
         return error_response(request, 404, "CLIENT_NOT_FOUND", "Não foi encontrado cliente para o CPF informado.")
+
+    @app.exception_handler(FaturaNaoEncontradaException)
+    async def missing_invoice(request: Request, _exception: FaturaNaoEncontradaException) -> JSONResponse:
+        return error_response(request, 404, "INVOICE_NOT_FOUND", "Não foi encontrada fatura para o cliente informado.")
+
+    @app.exception_handler(SelecaoFaturaObrigatoriaException)
+    async def invoice_selection_required(
+        request: Request, _exception: SelecaoFaturaObrigatoriaException
+    ) -> JSONResponse:
+        return error_response(
+            request,
+            409,
+            "INVOICE_SELECTION_REQUIRED",
+            "O cliente possui mais de uma fatura. Informe o número da fatura desejada.",
+        )
 
     @app.exception_handler(Exception)
     async def internal_error(request: Request, _exception: Exception) -> JSONResponse:

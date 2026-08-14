@@ -75,17 +75,39 @@ def cpf_from_base(base: int) -> str:
     return first_nine + str(first) + str(second)
 
 
-def generated_record(index: int, randomizer: random.Random) -> dict[str, str]:
-    city, state, cep_prefix = LOCATIONS[index % len(LOCATIONS)]
-    status = STATUSES[index % len(STATUSES)]
+def generated_invoice(client_index: int, invoice_index: int) -> dict[str, str]:
+    status = STATUSES[(client_index + invoice_index) % len(STATUSES)]
     if status == "PENDENTE":
-        issue_date = date(2026, 8, 1) + timedelta(days=index % 14)
+        issue_date = date(2026, 8, 1) + timedelta(days=client_index % 14)
     elif status == "VENCIDA":
-        issue_date = date(2026, 4, 1) + timedelta(days=index % 75)
+        issue_date = date(2026, 4, 1) + timedelta(days=client_index % 75)
     else:
-        issue_date = date(2026, 5, 1) + timedelta(days=index % 90)
-    due_date = issue_date + timedelta(days=30)
-    amount = Decimal("39.90") + Decimal(index % 24) * Decimal("17.35") + Decimal(index % 7)
+        issue_date = date(2026, 5, 1) + timedelta(days=client_index % 90)
+    amount = (
+        Decimal("39.90") + Decimal(client_index % 24) * Decimal("17.35") + Decimal(invoice_index) * Decimal("23.70")
+    )
+    return {
+        "numero": f"FAT-2026-{client_index + 3:05d}-{invoice_index + 1}",
+        "valor": f"{amount:.2f}",
+        "vencimento": (issue_date + timedelta(days=30)).isoformat(),
+        "status": status,
+        "data_emissao": issue_date.isoformat(),
+    }
+
+
+def invoice_count(index: int) -> int:
+    remainder = index % 10
+    if remainder == 0:
+        return 0
+    if remainder in (1, 2):
+        return 3
+    if remainder in (3, 4, 5):
+        return 2
+    return 1
+
+
+def generated_record(index: int, randomizer: random.Random) -> dict[str, object]:
+    city, state, cep_prefix = LOCATIONS[index % len(LOCATIONS)]
     return {
         "cpf": cpf_from_base(100000001 + index),
         "nome": f"{FIRST_NAMES[index % len(FIRST_NAMES)]} {LAST_NAMES[(index * 3) % len(LAST_NAMES)]}",
@@ -94,11 +116,7 @@ def generated_record(index: int, randomizer: random.Random) -> dict[str, str]:
         "cidade": city,
         "estado": state,
         "cep": f"{cep_prefix}{index % 1000:03d}",
-        "numero_fatura": f"FAT-2026-{index + 3:05d}",
-        "valor": f"{amount:.2f}",
-        "vencimento": due_date.isoformat(),
-        "status": status,
-        "data_emissao": issue_date.isoformat(),
+        "faturas": [generated_invoice(index, invoice_index) for invoice_index in range(invoice_count(index))],
     }
 
 
@@ -113,11 +131,15 @@ def main() -> None:
             "cidade": "São Paulo",
             "estado": "SP",
             "cep": "01000000",
-            "numero_fatura": "FAT-2026-00001",
-            "valor": "129.90",
-            "vencimento": "2026-09-10",
-            "status": "PENDENTE",
-            "data_emissao": "2026-08-01",
+            "faturas": [
+                {
+                    "numero": "FAT-2026-00001-1",
+                    "valor": "129.90",
+                    "vencimento": "2026-09-10",
+                    "status": "PENDENTE",
+                    "data_emissao": "2026-08-01",
+                }
+            ],
         },
         {
             "cpf": "52998224725",
@@ -127,11 +149,7 @@ def main() -> None:
             "cidade": "São Paulo",
             "estado": "SP",
             "cep": "01310000",
-            "numero_fatura": "FAT-2026-00002",
-            "valor": "245.70",
-            "vencimento": "2026-07-20",
-            "status": "PAGA",
-            "data_emissao": "2026-06-20",
+            "faturas": [],
         },
     ]
     records.extend(generated_record(index, randomizer) for index in range(TOTAL_GENERATED_RECORDS))

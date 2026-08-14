@@ -17,6 +17,10 @@ class FaturaNaoEncontradaException(DomainError):
     pass
 
 
+class SelecaoFaturaObrigatoriaException(DomainError):
+    pass
+
+
 class BoletoGenerationException(DomainError):
     pass
 

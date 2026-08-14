@@ -11,7 +11,7 @@ API REST em Python/FastAPI para consultar clientes e faturas telefônicas por CP
 - O PIX usa BR Code/EMV com Merchant Account Information, valor, txid e CRC16-CCITT.
 - PDF é gerado em tempo de execução com ReportLab, Code128 e QR Code real.
 
-Cada linha de `dados/clientes.txt` contém os dados cadastrais e a fatura associada: `cpf`, `nome`, `telefone`, `endereco`, `cidade`, `estado`, `cep`, `numero_fatura`, `valor`, `vencimento`, `status` e `data_emissao`. A base de demonstração possui mais de 100 registros e pode ser regenerada deterministicamente com:
+Cada linha de `dados/clientes.txt` contém um cadastro (`cpf`, `nome`, `telefone`, `endereco`, `cidade`, `estado` e `cep`) e uma lista `faturas`. Essa lista pode estar vazia ou conter múltiplas cobranças, cada uma com `numero`, `valor`, `vencimento`, `status` e `data_emissao`. A base de demonstração possui mais de 100 clientes e pode ser regenerada deterministicamente com:
 
 ```bash
 python scripts/generate_sample_data.py
@@ -34,14 +34,16 @@ Documentação Swagger: http://localhost:8000/docs. ReDoc: http://localhost:8000
 
 ## Endpoints
 
-- `GET /api/v1/clientes/{cpf}` consulta cliente e fatura.
-- `GET /api/v1/clientes/{cpf}/boleto` retorna linha digitável e dados derivados.
-- `GET /api/v1/clientes/{cpf}/pix` retorna o payload PIX Copia e Cola.
-- `GET /api/v1/clientes/{cpf}/fatura/pdf` gera o PDF.
-- `GET /api/v1/massadados` lista todas as massas sintéticas; aceite `status=PENDENTE`, `PAGA`, `VENCIDA` ou `CANCELADA` para filtrar.
+- `GET /api/v1/clientes/{cpf}` consulta o cadastro e todos os boletos; um cliente sem cobranças retorna `quantidade_boletos: 0` e `boletos: []`.
+- `GET /api/v1/clientes/{cpf}/boleto` retorna linha digitável e dados derivados. Use `numero_fatura` quando houver mais de um boleto.
+- `GET /api/v1/clientes/{cpf}/pix` retorna o PIX da cobrança selecionada; também aceita `numero_fatura`.
+- `GET /api/v1/clientes/{cpf}/fatura/pdf` gera o PDF da cobrança selecionada; também aceita `numero_fatura`.
+- `GET /api/v1/massadados` lista as massas sintéticas. Aceita os filtros combináveis `status` e `quantidade_boletos` (incluindo zero).
 - `GET /health` verifica a saúde da API.
 
 CPF pode ser informado com ou sem máscara. Logs e respostas não expõem o CPF completo.
+
+Cliente inexistente retorna `404 CLIENT_NOT_FOUND`. Cadastro existente sem boleto retorna `200` na consulta, mas uma tentativa de gerar pagamento retorna `404 INVOICE_NOT_FOUND`. Quando há múltiplos boletos e `numero_fatura` não é informado, a API retorna `409 INVOICE_SELECTION_REQUIRED` em vez de escolher uma cobrança implicitamente.
 
 ## Testes, cobertura e qualidade
 
