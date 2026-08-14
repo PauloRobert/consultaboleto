@@ -54,6 +54,20 @@ docker compose up --build
 
 O Compose usa `.env.example` por padrão para permitir a primeira execução. Em produção, crie `.env` fora do versionamento e configure valores próprios, especialmente chave PIX, CORS e fonte de dados.
 
+## Deploy no Render
+
+O arquivo `runtime.txt` fixa Python 3.13.4. Essa versão é necessária para que o `pydantic-core` utilize um wheel pré-compilado, evitando a compilação Rust incompatível com Python 3.14.
+
+Configure um Web Service com:
+
+```text
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+Health Check Path: /health
+```
+
+O diretório raiz deve ser a raiz deste repositório. Depois de adicionar `runtime.txt`, faça um novo deploy com cache limpo no Render se a plataforma ainda exibir Python 3.14 nos logs.
+
 ## Segurança e operação
 
 Há validação rigorosa de CPF e comprimento de entrada, caminho de dados resolvido pelo adaptador, mensagens internas ocultas, request ID, CORS configurável e headers básicos de segurança. O rate limiting e autenticação estão preparados como pontos de extensão, mas não são ativados sem uma política de infraestrutura definida.
