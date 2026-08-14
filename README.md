@@ -11,6 +11,12 @@ API REST em Python/FastAPI para consultar clientes e faturas telefônicas por CP
 - O PIX usa BR Code/EMV com Merchant Account Information, valor, txid e CRC16-CCITT.
 - PDF é gerado em tempo de execução com ReportLab, Code128 e QR Code real.
 
+Cada linha de `dados/clientes.txt` contém os dados cadastrais e a fatura associada: `cpf`, `nome`, `telefone`, `endereco`, `cidade`, `estado`, `cep`, `numero_fatura`, `valor`, `vencimento`, `status` e `data_emissao`. A base de demonstração possui mais de 100 registros e pode ser regenerada deterministicamente com:
+
+```bash
+python scripts/generate_sample_data.py
+```
+
 ## Estrutura
 
 `app/domain` contém regras do domínio; `app/application` contém casos de uso; `app/infrastructure` contém adaptadores TXT, boleto, PIX e PDF; `app/api` contém composição HTTP e `app/schemas` contém contratos Pydantic.

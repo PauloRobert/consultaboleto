@@ -17,6 +17,10 @@ def test_repository_encontra_e_cacheia_clientes(tmp_path) -> None:
                 "cidade": "SP",
                 "estado": "SP",
                 "cep": "01000000",
+                "valor": "87.45",
+                "vencimento": "2026-10-15",
+                "status": "PAGA",
+                "data_emissao": "2026-09-15",
             }
         )
         + "\n",
@@ -24,6 +28,10 @@ def test_repository_encontra_e_cacheia_clientes(tmp_path) -> None:
     )
     repository = ClienteTxtRepository(str(path), cache_ttl_seconds=60)
     assert repository.buscar_por_cpf("12345678909").nome == "A"
+    invoice = repository.buscar_fatura_por_cpf("12345678909")
+    assert invoice is not None
+    assert str(invoice.valor.valor) == "87.45"
+    assert invoice.status == "PAGA"
     path.write_text("{malformed\n", encoding="utf-8")
     assert repository.buscar_por_cpf("12345678909").nome == "A"
     assert repository.buscar_por_cpf("52998224725") is None
