@@ -1,0 +1,2 @@
+{"cpf":"12345678909","nome":"João da Silva","telefone":"11999999999","endereco":"Rua Exemplo, 100","cidade":"São Paulo","estado":"SP","cep":"01000000"}
+{"cpf":"52998224725","nome":"Maria Oliveira","telefone":"11988887777","endereco":"Avenida Central, 250","cidade":"São Paulo","estado":"SP","cep":"01310000"}
