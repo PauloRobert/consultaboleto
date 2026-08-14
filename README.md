@@ -56,17 +56,23 @@ O Compose usa `.env.example` por padrão para permitir a primeira execução. Em
 
 ## Deploy no Render
 
-O arquivo `runtime.txt` fixa Python 3.13.4. Essa versão é necessária para que o `pydantic-core` utilize um wheel pré-compilado, evitando a compilação Rust incompatível com Python 3.14.
+O arquivo `runtime.txt` e o blueprint `render.yaml` fixam Python 3.13.4. A variável `PYTHON_VERSION` também é lida por `render-build.sh`, que valida o interpretador efetivo antes de instalar as dependências. Essa versão é necessária para que o `pydantic-core` utilize um wheel pré-compilado, evitando a compilação Rust incompatível com Python 3.14.
 
 Configure um Web Service com:
 
 ```text
-Build Command: pip install -r requirements.txt
+Build Command: bash render-build.sh
 Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 Health Check Path: /health
 ```
 
-O diretório raiz deve ser a raiz deste repositório. Depois de adicionar `runtime.txt`, faça um novo deploy com cache limpo no Render se a plataforma ainda exibir Python 3.14 nos logs.
+Configure no painel do Render, antes do deploy:
+
+```text
+PYTHON_VERSION=3.13.4
+```
+
+O diretório raiz deve ser a raiz deste repositório. Se o log ainda exibir Python 3.14, use **Clear build cache & deploy**. O build falhará imediatamente com uma mensagem clara enquanto o runtime efetivo não coincidir com `PYTHON_VERSION`.
 
 ## Segurança e operação
 

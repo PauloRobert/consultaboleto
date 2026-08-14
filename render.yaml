@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: consultaboleto-api
+    runtime: python
+    plan: free
+    buildCommand: bash render-build.sh
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.4
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_JSON
+        value: "true"
+      - key: DATA_FILE
+        value: dados/clientes.txt
