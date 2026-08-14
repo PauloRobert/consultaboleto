@@ -62,7 +62,7 @@ Configure um Web Service com:
 
 ```text
 Build Command: bash render-build.sh
-Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+Start Command: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
 Health Check Path: /health
 ```
 
