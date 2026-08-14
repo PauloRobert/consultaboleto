@@ -10,3 +10,5 @@ htmlcov/
 *.log
 .DS_Store
 .vscode/
+start.bat
+.claude*
