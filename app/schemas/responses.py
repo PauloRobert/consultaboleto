@@ -31,6 +31,12 @@ class ClienteFaturaData(BaseModel):
     fatura: FaturaResponse
 
 
+class MassaDadosResponse(BaseModel):
+    total: int
+    status_filtro: str | None = None
+    registros: list[ClienteFaturaData]
+
+
 class BoletoData(BaseModel):
     linha_digitavel: str
     codigo_barras: str

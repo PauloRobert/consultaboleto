@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from app.application.use_cases.consultar_fatura import ConsultarFatura
 from app.application.use_cases.gerar_fatura_pdf import GerarFaturaPdf
+from app.application.use_cases.listar_massas_dados import ListarMassasDados
 from app.application.use_cases.obter_pagamentos import ObterBoleto, ObterPix
 from app.core.config import get_settings
 from app.infrastructure.boleto.boleto_generator import BoletoGeneratorService
@@ -20,6 +21,10 @@ def get_repository() -> ClienteTxtRepository:
 
 def get_consultar_fatura() -> ConsultarFatura:
     return ConsultarFatura(get_repository())
+
+
+def get_listar_massas_dados() -> ListarMassasDados:
+    return ListarMassasDados(get_repository())
 
 
 def get_obter_boleto() -> ObterBoleto:

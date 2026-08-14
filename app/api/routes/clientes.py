@@ -3,8 +3,9 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Path
 
 from app.api.dependencies import get_consultar_fatura
+from app.api.presenters import cliente_fatura_response
 from app.application.use_cases.consultar_fatura import ConsultarFatura
-from app.schemas.responses import ClienteFaturaData, ClienteResponse, FaturaResponse, SuccessResponse
+from app.schemas.responses import ClienteFaturaData, SuccessResponse
 
 router = APIRouter(prefix="/clientes", tags=["Clientes e faturas"])
 
@@ -21,19 +22,4 @@ def consultar(
     use_case: ConsultarFatura = Depends(get_consultar_fatura),
 ) -> SuccessResponse[ClienteFaturaData]:
     invoice = use_case.execute(cpf)
-    return SuccessResponse(
-        data=ClienteFaturaData(
-            cliente=ClienteResponse(
-                nome=invoice.cliente.nome,
-                cpf=invoice.cliente.cpf.masked(),
-                telefone=invoice.cliente.telefone,
-                endereco=invoice.cliente.endereco,
-                cidade=invoice.cliente.cidade,
-                estado=invoice.cliente.estado,
-                cep=invoice.cliente.cep,
-            ),
-            fatura=FaturaResponse(
-                numero=invoice.numero, valor=invoice.valor.valor, vencimento=invoice.vencimento, status=invoice.status
-            ),
-        )
-    )
+    return SuccessResponse(data=cliente_fatura_response(invoice))

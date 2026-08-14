@@ -1,4 +1,4 @@
-# Telephone Invoice API
+# Consulta Boleto
 
 API REST em Python/FastAPI para consultar clientes e faturas telefônicas por CPF, com geração dinâmica de boleto demonstrativo, PIX Copia e Cola e PDF.
 
@@ -38,6 +38,7 @@ Documentação Swagger: http://localhost:8000/docs. ReDoc: http://localhost:8000
 - `GET /api/v1/clientes/{cpf}/boleto` retorna linha digitável e dados derivados.
 - `GET /api/v1/clientes/{cpf}/pix` retorna o payload PIX Copia e Cola.
 - `GET /api/v1/clientes/{cpf}/fatura/pdf` gera o PDF.
+- `GET /api/v1/massadados` lista todas as massas sintéticas; aceite `status=PENDENTE`, `PAGA`, `VENCIDA` ou `CANCELADA` para filtrar.
 - `GET /health` verifica a saúde da API.
 
 CPF pode ser informado com ou sem máscara. Logs e respostas não expõem o CPF completo.

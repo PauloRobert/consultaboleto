@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
 from app.api.routes.clientes import router as clientes_router
+from app.api.routes.massadados import router as massadados_router
 from app.api.routes.pagamentos import router as pagamentos_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
@@ -52,4 +53,5 @@ def health() -> HealthResponse:
 
 app.include_router(clientes_router, prefix="/api/v1")
 app.include_router(pagamentos_router, prefix="/api/v1")
+app.include_router(massadados_router, prefix="/api/v1")
 register_exception_handlers(app)

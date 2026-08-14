@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     )
 
     # --- Aplicação -------------------------------------------------------
-    app_name: str = Field(default="Telephone Invoice API")
+    app_name: str = Field(default="Consulta Boleto")
     app_env: str = Field(default="development")
     app_version: str = Field(default="1.0.0")
     debug: bool = Field(default=False)

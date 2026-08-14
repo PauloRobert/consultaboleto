@@ -38,6 +38,10 @@ class ClienteTxtRepository(ClienteRepository):
         _, invoices = self._records()
         return invoices.get(normalized)
 
+    def listar_faturas(self) -> tuple[Fatura, ...]:
+        _, invoices = self._records()
+        return tuple(invoices.values())
+
     def _records(self) -> tuple[dict[str, Cliente], dict[str, Fatura]]:
         with self._lock:
             if (

@@ -12,3 +12,6 @@ class ClienteRepository(Protocol):
 
     def buscar_fatura_por_cpf(self, cpf: str) -> Fatura | None:
         """Busca a fatura associada ao CPF normalizado."""
+
+    def listar_faturas(self) -> tuple[Fatura, ...]:
+        """Lista todas as faturas disponíveis na fonte de dados."""

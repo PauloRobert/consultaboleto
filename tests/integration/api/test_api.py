@@ -30,3 +30,47 @@ def test_pagamentos_e_pdf() -> None:
     assert len(pix.json()["data"]["pix_copia_e_cola"]) > 100
     assert pdf.headers["content-type"] == "application/pdf"
     assert pdf.content.startswith(b"%PDF")
+
+
+def test_lista_todas_as_massas_de_dados() -> None:
+    response = client.get("/api/v1/massadados")
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["total"] == 122
+    assert data["status_filtro"] is None
+    assert len(data["registros"]) == 122
+    assert data["registros"][0]["cliente"]["cpf"] == "12345678909"
+
+
+def test_filtra_massas_por_status() -> None:
+    expected_totals = {"PENDENTE": 31, "PAGA": 31, "VENCIDA": 30, "CANCELADA": 30}
+
+    for status, expected_total in expected_totals.items():
+        response = client.get("/api/v1/massadados", params={"status": status})
+        data = response.json()["data"]
+        assert response.status_code == 200
+        assert data["total"] == expected_total
+        assert data["status_filtro"] == status
+        assert all(record["fatura"]["status"] == status for record in data["registros"])
+
+
+def test_rejeita_status_invalido_na_massa_de_dados() -> None:
+    response = client.get("/api/v1/massadados", params={"status": "INVALIDO"})
+
+    assert response.status_code == 422
+
+
+def test_openapi_expoe_nome_e_filtro_de_status() -> None:
+    schema = client.get("/openapi.json").json()
+
+    assert schema["info"]["title"] == "Consulta Boleto"
+    operation = schema["paths"]["/api/v1/massadados"]["get"]
+    assert operation["summary"] == "Lista as massas de dados"
+    assert operation["parameters"][0]["name"] == "status"
+    assert schema["components"]["schemas"]["StatusFatura"]["enum"] == [
+        "PENDENTE",
+        "PAGA",
+        "VENCIDA",
+        "CANCELADA",
+    ]
