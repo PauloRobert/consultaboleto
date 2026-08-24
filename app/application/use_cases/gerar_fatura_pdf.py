@@ -17,6 +17,6 @@ class GerarFaturaPdf:
         self._pix = pix_generator
         self._pdf = pdf_generator
 
-    def execute(self, cpf: str) -> bytes:
-        invoice = self._consultar_fatura.execute(cpf)
+    def execute(self, cpf: str, numero_fatura: str | None = None) -> bytes:
+        invoice = self._consultar_fatura.execute(cpf, numero_fatura)
         return self._pdf.gerar(invoice, self._boleto.gerar(invoice), self._pix.gerar(invoice))

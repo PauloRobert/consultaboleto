@@ -10,8 +10,8 @@ class ObterBoleto:
         self._consultar_fatura = consultar_fatura
         self._generator = generator
 
-    def execute(self, cpf: str) -> Boleto:
-        return self._generator.gerar(self._consultar_fatura.execute(cpf))
+    def execute(self, cpf: str, numero_fatura: str | None = None) -> Boleto:
+        return self._generator.gerar(self._consultar_fatura.execute(cpf, numero_fatura))
 
 
 class ObterPix:
@@ -19,5 +19,5 @@ class ObterPix:
         self._consultar_fatura = consultar_fatura
         self._generator = generator
 
-    def execute(self, cpf: str) -> str:
-        return self._generator.gerar(self._consultar_fatura.execute(cpf))
+    def execute(self, cpf: str, numero_fatura: str | None = None) -> str:
+        return self._generator.gerar(self._consultar_fatura.execute(cpf, numero_fatura))

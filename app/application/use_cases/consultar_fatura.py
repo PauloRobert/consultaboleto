@@ -1,26 +1,26 @@
 from __future__ import annotations
 
-from datetime import date
-from decimal import Decimal
-
 from app.application.use_cases.consultar_cliente import ConsultarCliente
 from app.domain.entities.fatura import Fatura
+from app.domain.exceptions.domain_exceptions import FaturaNaoEncontradaException, SelecaoFaturaObrigatoriaException
 from app.domain.repositories.cliente_repository import ClienteRepository
-from app.domain.value_objects.dinheiro import Dinheiro
 
 
 class ConsultarFatura:
     def __init__(self, repository: ClienteRepository) -> None:
+        self._repository = repository
         self._consultar_cliente = ConsultarCliente(repository)
 
-    def execute(self, cpf: str) -> Fatura:
-        cliente = self._consultar_cliente.execute(cpf)
-        # A fonte inicial representa uma fatura vigente por cliente.
-        return Fatura(
-            cliente=cliente,
-            numero=f"FAT-{cliente.cpf.value[-8:]}",
-            valor=Dinheiro(Decimal("129.90")),
-            vencimento=date(2026, 9, 10),
-            status="PENDENTE",
-            data_emissao=date(2026, 8, 1),
-        )
+    def execute(self, cpf: str, numero_fatura: str | None = None) -> Fatura:
+        client = self._consultar_cliente.execute(cpf)
+        invoices = self._repository.buscar_faturas_por_cpf(client.cpf.value)
+        if not invoices:
+            raise FaturaNaoEncontradaException()
+        if numero_fatura is not None:
+            invoice = next((item for item in invoices if item.numero == numero_fatura), None)
+            if invoice is None:
+                raise FaturaNaoEncontradaException()
+            return invoice
+        if len(invoices) > 1:
+            raise SelecaoFaturaObrigatoriaException()
+        return invoices[0]

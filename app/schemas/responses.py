@@ -26,9 +26,17 @@ class FaturaResponse(BaseModel):
     status: str
 
 
-class ClienteFaturaData(BaseModel):
+class ClienteBoletosData(BaseModel):
     cliente: ClienteResponse
-    fatura: FaturaResponse
+    quantidade_boletos: int
+    boletos: list[FaturaResponse]
+
+
+class MassaDadosResponse(BaseModel):
+    total: int
+    status_filtro: str | None = None
+    quantidade_boletos_filtro: int | None = None
+    registros: list[ClienteBoletosData]
 
 
 class BoletoData(BaseModel):

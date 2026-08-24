@@ -1,4 +1,4 @@
-# Telephone Invoice API
+# Consulta Boleto
 
 API REST em Python/FastAPI para consultar clientes e faturas telefônicas por CPF, com geração dinâmica de boleto demonstrativo, PIX Copia e Cola e PDF.
 
@@ -10,6 +10,12 @@ API REST em Python/FastAPI para consultar clientes e faturas telefônicas por CP
 - O boleto adota o layout de cobrança FEBRABAN de 44 dígitos: banco + moeda + fator + valor + campo livre de 25 dígitos. A linha digitável usa módulo 10 e o dígito geral usa módulo 11. É um boleto demonstrativo: não está registrado em banco, registradora ou provedor de cobrança.
 - O PIX usa BR Code/EMV com Merchant Account Information, valor, txid e CRC16-CCITT.
 - PDF é gerado em tempo de execução com ReportLab, Code128 e QR Code real.
+
+Cada linha de `dados/clientes.txt` contém um cadastro (`cpf`, `nome`, `telefone`, `endereco`, `cidade`, `estado` e `cep`) e uma lista `faturas`. Essa lista pode estar vazia ou conter múltiplas cobranças, cada uma com `numero`, `valor`, `vencimento`, `status` e `data_emissao`. A base de demonstração possui mais de 100 clientes e pode ser regenerada deterministicamente com:
+
+```bash
+python scripts/generate_sample_data.py
+```
 
 ## Estrutura
 
@@ -28,13 +34,16 @@ Documentação Swagger: http://localhost:8000/docs. ReDoc: http://localhost:8000
 
 ## Endpoints
 
-- `GET /api/v1/clientes/{cpf}` consulta cliente e fatura.
-- `GET /api/v1/clientes/{cpf}/boleto` retorna linha digitável e dados derivados.
-- `GET /api/v1/clientes/{cpf}/pix` retorna o payload PIX Copia e Cola.
-- `GET /api/v1/clientes/{cpf}/fatura/pdf` gera o PDF.
+- `GET /api/v1/clientes/{cpf}` consulta o cadastro e todos os boletos; um cliente sem cobranças retorna `quantidade_boletos: 0` e `boletos: []`.
+- `GET /api/v1/clientes/{cpf}/boleto` retorna linha digitável e dados derivados. Use `numero_fatura` quando houver mais de um boleto.
+- `GET /api/v1/clientes/{cpf}/pix` retorna o PIX da cobrança selecionada; também aceita `numero_fatura`.
+- `GET /api/v1/clientes/{cpf}/fatura/pdf` gera o PDF da cobrança selecionada; também aceita `numero_fatura`.
+- `GET /api/v1/massadados` lista as massas sintéticas. Aceita os filtros combináveis `status` e `quantidade_boletos` (incluindo zero).
 - `GET /health` verifica a saúde da API.
 
 CPF pode ser informado com ou sem máscara. Logs e respostas não expõem o CPF completo.
+
+Cliente inexistente retorna `404 CLIENT_NOT_FOUND`. Cadastro existente sem boleto retorna `200` na consulta, mas uma tentativa de gerar pagamento retorna `404 INVOICE_NOT_FOUND`. Quando há múltiplos boletos e `numero_fatura` não é informado, a API retorna `409 INVOICE_SELECTION_REQUIRED` em vez de escolher uma cobrança implicitamente.
 
 ## Testes, cobertura e qualidade
 
@@ -56,17 +65,25 @@ O Compose usa `.env.example` por padrão para permitir a primeira execução. Em
 
 ## Deploy no Render
 
-O arquivo `runtime.txt` fixa Python 3.13.4. Essa versão é necessária para que o `pydantic-core` utilize um wheel pré-compilado, evitando a compilação Rust incompatível com Python 3.14.
+Conforme a documentação oficial do Render, `PYTHON_VERSION` tem a maior precedência para selecionar o interpretador e deve conter uma versão completa. O arquivo `.python-version` fornece o fallback versionado no repositório. Ambos fixam Python 3.13.4, versão compatível com o `pydantic-core` utilizado pelo projeto.
 
 Configure um Web Service com:
 
 ```text
 Build Command: pip install -r requirements.txt
-Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+Start Command: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
 Health Check Path: /health
 ```
 
-O diretório raiz deve ser a raiz deste repositório. Depois de adicionar `runtime.txt`, faça um novo deploy com cache limpo no Render se a plataforma ainda exibir Python 3.14 nos logs.
+Configure no painel do Render, antes do deploy:
+
+```text
+PYTHON_VERSION=3.13.4
+```
+
+O diretório raiz deve ser a raiz deste repositório. Cadastre a variável antes de iniciar o deploy e use **Clear build cache & deploy** para descartar o ambiente virtual criado anteriormente com Python 3.14.
+
+Referências oficiais: [versão do Python](https://render.com/docs/python-version) e [deploy de FastAPI](https://render.com/docs/deploy-fastapi).
 
 ## Segurança e operação
 
